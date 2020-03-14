@@ -5,7 +5,7 @@ import java.lang.reflect.Field
 open class MnRecord(var id: Int =-1) {
     private var n =-1
     protected var m =-1
-    open var t =-1
+    open var rdt =-1
 
 
 
@@ -27,7 +27,7 @@ open class MnRecord(var id: Int =-1) {
     fun getFieldsArray():Array<Field>{
         var ar :MutableList<Field> = mutableListOf()
        for (cls in getSupClassesArray()){
-           ar.addAll(cls.declaredFields)
+           ar.addAll(cls.declaredFields.filter { field -> field.name.startsWith("rd")  })
        }
         return ar.toTypedArray()
     }
@@ -35,5 +35,5 @@ open class MnRecord(var id: Int =-1) {
 }
 
 class MnRd(id: Int =-1) : MnRecord(id) {
-    var nono =-1
+    var rdnono =-1
 }
