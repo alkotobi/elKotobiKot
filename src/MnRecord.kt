@@ -1,11 +1,13 @@
 package com.merhab
 
 import java.lang.reflect.Field
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
-open class MnRecord(var id: Int =-1) {
-    private var n =-1
-    protected var m =-1
-    open var rdt =-1
+open class MnRecord(var rdid: Int =-1) {
+     var ign =-1
+     var m:Double =-1.00
+     var rdt =" "
 
 
 
@@ -24,16 +26,43 @@ open class MnRecord(var id: Int =-1) {
 
     }
 
-    fun getFieldsArray():Array<Field>{
-        var ar :MutableList<Field> = mutableListOf()
-       for (cls in getSupClassesArray()){
-           ar.addAll(cls.declaredFields.filter { field -> field.name.startsWith("rd")  })
-       }
-        return ar.toTypedArray()
+
+
+    fun getPropertyValue(property:KProperty1<out Any, Any?>): Any? {
+        return readInstanceProperty(this,property.name)
     }
 
+    @Suppress("UNCHECKED_CAST")
+   protected fun <R> readInstanceProperty(instance: Any, propertyName: String): R {
+        val properties = instance::class.memberProperties
+            // don't cast here to <Any, R>, it would succeed silently
+            .first { it.name == propertyName } as KProperty1<Any, *>
+        // force a invalid cast exception if incorrect type here
+        return properties.get(instance) as R
+    }
+
+     fun  getAllFields(): Collection<KProperty1<out Any, Any?>> = this::class.memberProperties
+            // don't cast here to <Any, R>, it would succeed silently
+        // force a invalid cast exception if incorrect type here
+
+    // the record filed that will b saved to loacal or remote database should not start with ig
+    // it is not a perfect solution I know it
+    // I will think later for a better way
+    fun  getFieldsToSave(): Collection<KProperty1<out Any, Any?>> = this::class.memberProperties
+        .filter { !it.name.startsWith("ig") }
+        // don't cast here to <Any, R>, it would succeed silently
+        // force a invalid cast exception if incorrect type here
+
+
+
 }
 
+
+
 class MnRd(id: Int =-1) : MnRecord(id) {
-    var rdnono =-1
+    var igrdnono =-1
 }
+
+fun KProperty1<out Any, Any?>.typeName()=this.returnType.toString().substringAfterLast(".")
+
+
